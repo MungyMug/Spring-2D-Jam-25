@@ -25,8 +25,8 @@ public class IntroManager : MonoBehaviour
         }
         else
         {
-            gameObject.SetActive(false);
             nextButton.gameObject.SetActive(false);
+            gameObject.SetActive(false);
         }
     }
 
@@ -41,5 +41,10 @@ public class IntroManager : MonoBehaviour
         {
             introPanels[currentIntroIndex].SetActive(true);
         }
+    }
+
+    public int IndexCall()
+    {
+        return currentIntroIndex;
     }
 }
