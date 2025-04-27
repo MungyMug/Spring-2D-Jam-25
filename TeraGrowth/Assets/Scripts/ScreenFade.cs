@@ -4,20 +4,32 @@ using System.Collections;
 
 public class ScreenFade : MonoBehaviour
 {
+    [Header("Fade Settings")]
     [SerializeField] private Image fadeImage;
-    [SerializeField] private float fadeDurationBlack = 2f;
     [SerializeField] private float fadeDuration = 2f;
 
-    private void Start()
+    private void Awake()
     {
-        StartCoroutine(FadeFromBlack());
+        if (fadeImage != null)
+        {
+            Color c = fadeImage.color;
+            fadeImage.color = new Color(c.r, c.g, c.b, 0f);
+        }
     }
 
-    private IEnumerator FadeFromBlack()
+    public void TriggerFadeOut()
+    {
+        gameObject.SetActive(true);
+        StartCoroutine(FadeOutCoroutine());
+    }
+
+    private IEnumerator FadeOutCoroutine()
     {
         float timer = 0f;
-        Color startColor = fadeImage.color;
-        Color endColor = new Color(startColor.r, startColor.g, startColor.b, 0f);
+        Color startColor = new Color(fadeImage.color.r, fadeImage.color.g, fadeImage.color.b, 0f);
+        Color endColor = new Color(startColor.r, startColor.g, startColor.b, 1f);
+
+        fadeImage.color = startColor;
 
         while (timer < fadeDuration)
         {
@@ -27,33 +39,18 @@ public class ScreenFade : MonoBehaviour
         }
 
         fadeImage.color = endColor;
-        gameObject.SetActive(false);
+
+        ResetFade();
     }
 
-    private IEnumerator FadeToBlack()
+    private void ResetFade()
     {
-        float timer = 0f;
-        Color startColor = fadeImage.color;
-        Color endColor = new Color(startColor.r, startColor.g, startColor.b, 1f);
-
-        while (timer < fadeDurationBlack)
+        if (fadeImage != null)
         {
-            timer += Time.deltaTime;
-            fadeImage.color = Color.Lerp(startColor, endColor, timer / fadeDurationBlack);
-            yield return null;
+            Color c = fadeImage.color;
+            fadeImage.color = new Color(c.r, c.g, c.b, 0f);
         }
 
-        fadeImage.color = endColor;
         gameObject.SetActive(false);
-    }
-
-    public void TriggerFadeToBlack()
-    {
-        StartCoroutine(FadeToBlack());
-    }
-
-    public void StartFade()
-    {
-        StartCoroutine(FadeFromBlack());
     }
 }

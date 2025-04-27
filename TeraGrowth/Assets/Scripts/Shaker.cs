@@ -7,41 +7,82 @@ public class Shaker : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     [SerializeField] private int requiredClickCount = 6;
     [SerializeField] private float maxClickInterval = 0.5f; // Maximum allowed time between clicks
 
+    [SerializeField] GameObject clickImage;
+
     private bool isInsideArea = false;
     private int clickCount = 0;
     private float clickTimer = 0f;
     private bool eventComplete = false;
     private bool isWiggling = false;
 
+    AudioManager audiomanager;
+    private void Start()
+    {
+        audiomanager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+    }
     private void Update()
     {
         if (!isInsideArea)
             return;
 
-        // Detect mouse button down
-        if (Input.GetMouseButtonDown(0))
+        if (gameObject.CompareTag("Cheats"))
         {
-            clickCount++;
-            clickTimer = maxClickInterval; // Reset timer after each click
-            Debug.Log("Click detected! Current clicks: " + clickCount);
-
-            StartCoroutine(WiggleOnce());
-
-            if (clickCount >= requiredClickCount)
+            // Detect mouse button down
+            if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.mouseScrollDelta.y != 0f)
             {
-                CompleteFertilizing();
+                clickCount++;
+                clickImage.SetActive(false);
+                clickTimer = maxClickInterval; // Reset timer after each click
+                Debug.Log("Click detected! Current clicks: " + clickCount);
+
+                StartCoroutine(WiggleOnce());
+
+                if (clickCount >= requiredClickCount)
+                {
+                    CompleteFertilizing();
+                }
+            }
+
+            // Timer counts down
+            if (clickTimer > 0f)
+            {
+                clickTimer -= Time.deltaTime;
+                if (clickTimer <= 0f)
+                {
+                    // If timer runs out between clicks, reset
+                    clickCount = 0;
+                    Debug.Log("Click streak reset.");
+                }
             }
         }
-
-        // Timer counts down
-        if (clickTimer > 0f)
+        else
         {
-            clickTimer -= Time.deltaTime;
-            if (clickTimer <= 0f)
+            // Detect mouse button down
+            if (Input.GetMouseButtonDown(0))
             {
-                // If timer runs out between clicks, reset
-                clickCount = 0;
-                Debug.Log("Click streak reset.");
+                clickCount++;
+                clickImage.SetActive(false);
+                clickTimer = maxClickInterval; // Reset timer after each click
+                Debug.Log("Click detected! Current clicks: " + clickCount);
+
+                StartCoroutine(WiggleOnce());
+
+                if (clickCount >= requiredClickCount)
+                {
+                    CompleteFertilizing();
+                }
+            }
+
+            // Timer counts down
+            if (clickTimer > 0f)
+            {
+                clickTimer -= Time.deltaTime;
+                if (clickTimer <= 0f)
+                {
+                    // If timer runs out between clicks, reset
+                    clickCount = 0;
+                    Debug.Log("Click streak reset.");
+                }
             }
         }
     }
@@ -70,6 +111,15 @@ public class Shaker : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         if (isWiggling)
             yield break;
+
+        if (gameObject.CompareTag("Frog"))
+        {
+            audiomanager.PlaySFX(audiomanager.croak);
+        }
+        else 
+        {
+            audiomanager.PlaySFX(audiomanager.shake);
+        }
 
         isWiggling = true;
 
